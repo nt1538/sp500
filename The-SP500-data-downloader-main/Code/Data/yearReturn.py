@@ -59,6 +59,15 @@ def yearReturn(data, start_year, end_year):
     df = pd.DataFrame(newData)
     df.to_excel('YearReturn.xlsx', engine='openpyxl', index=False)
 
-
-sp500data = pd.read_csv('sp500_data_with_weekends.csv')
-yearReturn(sp500data, 1957,2023)
+data1 = pd.read_csv('new_S&P500-raw_prices.csv')
+data1 = data1[['Price', 'Close']]
+data1 = data1.iloc[2:]
+data1['Price'] = pd.to_datetime(data1['Price'])
+data1.set_index('Price', inplace=True)
+full_date_range = pd.date_range(start=data1.index.min(), end=data1.index.max(), freq='D')
+data1 = data1.reindex(full_date_range)
+data1.ffill(inplace=True)
+data1.reset_index(inplace=True)
+data1.rename(columns={'index': 'Date'}, inplace=True)
+data1.rename(columns={'Close': 'S&P500'}, inplace=True)
+yearReturn(data1, 1957,2023)
